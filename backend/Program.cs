@@ -22,4 +22,11 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.MapGet("/test", () =>
+{
+    return "Backend is working 👋";
+});
+
+
 app.Run();
