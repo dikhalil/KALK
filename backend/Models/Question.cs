@@ -20,6 +20,7 @@ namespace Backend.Models
         public string? Explanation { get; set; }
         [MaxLength(500)]
         public string? Modifier { get; set; }
+        [Required]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
 }

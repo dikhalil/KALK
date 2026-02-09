@@ -25,53 +25,69 @@ namespace Backend.Controllers
         }
 
         [HttpPost("signup")]
-        public async Task<IActionResult> SignUp([FromBody] User user)
+        public async Task<IActionResult> SignUp(PlayerSignupDto dto)
         {
-            var existingUser = await _db.Users.FirstOrDefaultAsync(u => u.Email == user.Email);
-            if (existingUser != null)
-                return BadRequest(new {msg = "Email already in use"});
-            
-            var passwordHasher = new PasswordHasher<User>();
-            user.PasswordHash = passwordHasher.HashPassword(user, user.PasswordHash);
-
-            _db.Users.Add(user);
-            await _db.SaveChangesAsync();
+            var existingPlayer = await _db.Players.Include(p => p.AuthLocal).FirstOrDefaultAsync(p => p.AuthLocal.Email == dto.Email);
+            if (existingPlayer != null)
+                return BadRequest(new { msg = "Email already used" });
 
             var player = new Player
             {
-                UserId = user.Id
+                Username = dto.Username,
+                AuthLocal = new AuthLocal
+                {
+                    Email = dto.Email, 
+                    PasswordHash = new PasswordHasher<AuthLocal>().HashPassword(null, dto.Password)
+                }
             };
-            _db.Players.Add(player);
-            await _db.SaveChangesAsync();   
 
-            return Ok(new {msg = "User created successfully"});
+            _db.Players.Add(player);
+            await _db.SaveChangesAsync();
+
+            return Ok(new { msg = "Player created" });
         }
 
-        private string GenerateJwtToken(User user)
+        private string GenerateJwtToken(Player player)
         {
             var keyBytes = Encoding.UTF8.GetBytes(_config["Jwt:Key"]);
             var SecurityKey = new SymmetricSecurityKey(keyBytes);
             var credentials = new SigningCredentials(SecurityKey, SecurityAlgorithms.HmacSha256);
 
-            
-            return "";
+            var claims = new List<Claim>
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, player.Id.ToString()),
+                new Claim(JwtRegisteredClaimNames.Email, player.AuthLocal.Email),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),   
+            };
+
+            var token = new JwtSecurityToken(
+                issuer: _config["Jwt:Issuer"],
+                audience: _config["Jwt:Audience"],
+                claims: claims,
+                expires: DateTime.UtcNow.AddHours(1),
+                signingCredentials: credentials
+            );
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] User loginData)
+        public async Task<IActionResult> Login(PlayerLoginDto dto)
         {
-            var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == loginData.Email);
-            if (user == null)
-                return BadRequest(new {msg = "Invalid email"});
+            var player = await _db.Players
+                                .Include(p => p.AuthLocal)
+                                .FirstOrDefaultAsync(p => p.AuthLocal.Email == dto.Email);
+            if (player == null)
+                return BadRequest(new { msg = "Invalid email" });
 
-            var passwordHasher = new PasswordHasher<User>();
-            var result = passwordHasher.VerifyHashedPassword(user, user.PasswordHash, loginData.PasswordHash);
+            var passwordHasher = new PasswordHasher<AuthLocal>();
+            var result = passwordHasher.VerifyHashedPassword(player.AuthLocal, player.AuthLocal.PasswordHash, dto.Password);
+
             if (result == PasswordVerificationResult.Failed)
-                return BadRequest(new {msg = "Invalid password"});
+                return BadRequest(new { msg = "Invalid password" });
 
-            var token = GenerateJwtToken(user);
-            return Ok(new {msg = "Login successful", userId = user.Id, role = user.Role, token = token});
+            var token = GenerateJwtToken(player);
+            return Ok(new {msg = "token", token });
         }
-
     }
 }

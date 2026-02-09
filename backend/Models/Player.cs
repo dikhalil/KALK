@@ -1,6 +1,5 @@
 using System;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Backend.Models
 {
@@ -8,11 +7,17 @@ namespace Backend.Models
     {
         [Key]
         public int Id { get; set; }
-
         [Required]
-        public int UserId { get; set; }
-        
+        [MaxLength(50)]
+        public string Username { get; set; } = string.Empty;
+        [MaxLength(100)]
+        public int? Xp { get; set; } = 0;
+        [MaxLength(100)]
+        public string? AvatarImageName { get; set; }
         [Required]
-        public User User { get; set; } = null!;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public AuthLocal AuthLocal { get; set; } = null!;
+        public ICollection<AuthOAuth> AuthOAuths { get; set; } = new List<AuthOAuth>();
+        public ICollection<GameParticipant> GameParticipants { get; set; } = new List<GameParticipant>();
     }
 }

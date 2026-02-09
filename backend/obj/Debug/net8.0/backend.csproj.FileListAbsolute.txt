@@ -110,3 +110,11 @@
 /home/dikhalil/backend/backend/obj/Debug/net8.0/backend.pdb
 /home/dikhalil/backend/backend/obj/Debug/net8.0/backend.genruntimeconfig.cache
 /home/dikhalil/backend/backend/obj/Debug/net8.0/ref/backend.dll
+/home/dikhalil/backend/backend/bin/Debug/net8.0/Microsoft.IdentityModel.Abstractions.dll
+/home/dikhalil/backend/backend/bin/Debug/net8.0/Microsoft.IdentityModel.JsonWebTokens.dll
+/home/dikhalil/backend/backend/bin/Debug/net8.0/Microsoft.IdentityModel.Logging.dll
+/home/dikhalil/backend/backend/bin/Debug/net8.0/Microsoft.IdentityModel.Tokens.dll
+/home/dikhalil/backend/backend/bin/Debug/net8.0/System.IdentityModel.Tokens.Jwt.dll
+/home/dikhalil/backend/backend/bin/Debug/net8.0/Microsoft.AspNetCore.Authentication.JwtBearer.dll
+/home/dikhalil/backend/backend/bin/Debug/net8.0/Microsoft.IdentityModel.Protocols.dll
+/home/dikhalil/backend/backend/bin/Debug/net8.0/Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
