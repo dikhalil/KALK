@@ -1,12 +1,14 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 
-public class PlayerLoginDto
+namespace Backend.Models.DTOs
 {
-    [Required]
-    [EmailAddress]
-    public string Email { get; set; }
-
-    [Required]
-    public string Password { get; set; }
-}   
+    public class PlayerLoginDto
+    {
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; }
+        [Required]
+        public string Password { get; set; }
+    }
+}
