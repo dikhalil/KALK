@@ -1,51 +1,35 @@
-using Backend.Data;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using System.Text.Json;
+using Backend.Extensions;
 
-var builder = WebApplication.CreateBuilder(args);
+#region App Builder
+var builder = WebApplication.CreateBuilder(args)
+.AddAppBuilder();
+#endregion
 
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+#region JWT Authentication
+builder.Services.AddJwtAuthentication();
+#endregion
 
-builder.Services.AddControllers();
+#region Google OAuth Configuration
+builder.Services.AddGoogleOAuth();
+#endregion
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidAudience = builder.Configuration["Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
-        };
-    });
+#region Database
+builder.Services.AddAppDatabase();
+#endregion
 
-var googleOAuthJson = File.ReadAllText("Config/google.json");
-var googleOAuthConfig = JsonSerializer.Deserialize<GoogleOAuthConfig>(googleOAuthJson);
-builder.Services.AddSingleton(googleOAuthConfig);
+#region Services
+builder.Services.AddAppServices();
+#endregion
 
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
-);
-
+#region App
 var app = builder.Build();
+#endregion
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+#region Database Seeding
+await app.SeedDatabaseAsync();
+#endregion
 
-app.UseAuthentication();
-app.UseAuthorization();
-app.UseHttpsRedirection();
-app.MapControllers();
-
+#region App Pipeline
+app.UseAppPipeline().UseAppInfrastructure();
 app.Run();
+#endregion

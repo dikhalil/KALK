@@ -10,14 +10,12 @@ namespace Backend.Models
         [Key]
         public int Id { get; set; }
         [Required]
-        [ForeignKey("GameSession")]
         public int GameSessionId { get; set; }
-        public GameSession GameSession { get; set; }
+        public GameSession GameSession { get; set; } = null!;
 
         [Required]
-        [ForeignKey("Player")]
         public int PlayerId { get; set; }
-        public Player Player { get; set; }
+        public Player Player { get; set; } = null!;
 
         [Required]
         public int FinalScore { get; set; } = 0;

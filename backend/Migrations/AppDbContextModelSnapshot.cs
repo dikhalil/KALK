@@ -17,7 +17,7 @@ namespace backend.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.12")
+                .HasAnnotation("ProductVersion", "10.0.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -48,6 +48,9 @@ namespace backend.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Email")
+                        .IsUnique();
+
                     b.HasIndex("PlayerId")
                         .IsUnique();
 
@@ -65,6 +68,10 @@ namespace backend.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("Email")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
                     b.Property<int>("PlayerId")
                         .HasColumnType("integer");
 
@@ -81,6 +88,9 @@ namespace backend.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("PlayerId");
+
+                    b.HasIndex("Provider", "ProviderUserId")
+                        .IsUnique();
 
                     b.ToTable("AuthOAuths");
                 });
@@ -149,10 +159,17 @@ namespace backend.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("AvatarImageName")
+                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
                     b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("RefreshToken")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("RefreshTokenExpiryTime")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Username")
@@ -160,8 +177,7 @@ namespace backend.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
-                    b.Property<int?>("Xp")
-                        .HasMaxLength(100)
+                    b.Property<int>("Xp")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
@@ -200,6 +216,10 @@ namespace backend.Migrations
 
                     b.Property<int>("TopicId")
                         .HasColumnType("integer");
+
+                    b.Property<string>("TopicName")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.HasKey("Id");
 
@@ -288,8 +308,7 @@ namespace backend.Migrations
 
             modelBuilder.Entity("Backend.Models.Player", b =>
                 {
-                    b.Navigation("AuthLocal")
-                        .IsRequired();
+                    b.Navigation("AuthLocal");
 
                     b.Navigation("AuthOAuths");
 

@@ -16,6 +16,6 @@ namespace Backend.Models
         public string GameConfigSnapshot { get; set; } = string.Empty;
         [Required]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        public ICollection<GameParticipant> GameParticipants { get; set; }
+        public ICollection<GameParticipant> GameParticipants { get; set; } = new List<GameParticipant>();
     }  
 }
